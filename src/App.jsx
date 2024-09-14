@@ -39,11 +39,22 @@ export default class App extends Component {
     }));
   };
 
+  editItem = (id, text) => {
+    this.setState(({ items }) => ({
+      items: items.map((item) => (item.id === id ? { ...item, body: text } : item)),
+    }));
+  };
+
   render() {
     return (
       <div className="todo-app">
         <NewTaskForm onTaskAdd={this.addTask.bind(this)} />
-        <TaskList todos={this.state.items} onDelete={this.deleteTask} onToggle={this.toggleTask} />
+        <TaskList
+          todos={this.state.items}
+          onDelete={this.deleteTask}
+          onToggle={this.toggleTask}
+          editItem={this.editItem}
+        />
         <Footer />
       </div>
     );
