@@ -10,6 +10,7 @@ export default class App extends Component {
     super();
     this.state = {
       items: [],
+      filter: 'All',
     };
   }
 
@@ -24,14 +25,15 @@ export default class App extends Component {
     });
   };
 
-  addTask(value) {
+  addTask = (value) => {
     const data = {
       body: value,
       id: this.state.items.length + 1,
       checked: false,
+      date: new Date(),
     };
     this.setState(({ items }) => ({ items: [...items, data] }));
-  }
+  };
 
   toggleTask = (id) => {
     this.setState(({ items }) => ({
@@ -39,23 +41,45 @@ export default class App extends Component {
     }));
   };
 
-  editItem = (id, text) => {
+  editTask = (id, text) => {
     this.setState(({ items }) => ({
       items: items.map((item) => (item.id === id ? { ...item, body: text } : item)),
     }));
   };
 
+  clearCompleted = () => {
+    this.setState(({ items }) => ({ items: items.filter((element) => !element.checked) }));
+  };
+
+  filteredTask = () => {
+    const { items, filter } = this.state;
+    return items.filter(({ checked }) => {
+      const all = filter === 'All';
+      const completed = filter === 'Completed';
+      return all ? true : completed ? checked === true : checked === false;
+    });
+  };
+
+  changeFilter = (data) => {
+    this.setState({ filter: data });
+  };
+
   render() {
     return (
       <div className="todo-app">
-        <NewTaskForm onTaskAdd={this.addTask.bind(this)} />
+        <NewTaskForm onTaskAdd={this.addTask} />
         <TaskList
-          todos={this.state.items}
+          todos={this.filteredTask()}
           onDelete={this.deleteTask}
           onToggle={this.toggleTask}
-          editItem={this.editItem}
+          editItem={this.editTask}
         />
-        <Footer />
+        <Footer
+          lefts={this.state.items.filter(({ checked }) => !checked).length}
+          filter={this.state.filter}
+          clearCompleted={this.clearCompleted}
+          changeFilter={this.changeFilter}
+        />
       </div>
     );
   }

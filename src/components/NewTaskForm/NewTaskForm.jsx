@@ -1,6 +1,6 @@
 import React from 'react';
 
-class NewTaskForm extends React.Component {
+export default class NewTaskForm extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -34,5 +34,3 @@ class NewTaskForm extends React.Component {
     );
   }
 }
-
-export default NewTaskForm;

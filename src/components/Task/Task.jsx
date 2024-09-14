@@ -1,5 +1,6 @@
 import React from 'react';
-
+import { formatDistanceToNow } from 'date-fns';
+import KG from 'date-fns/locale/en-AU';
 export default class Task extends React.Component {
   constructor() {
     super();
@@ -22,14 +23,18 @@ export default class Task extends React.Component {
 
   render() {
     const { title, onDelete, todo } = this.props;
-    const { checked } = todo;
+    const { checked, date } = todo;
     return (
       <li className={checked ? 'completed' : this.state.editing ? 'editing' : ''}>
         <div className="view">
           <input className="toggle" type="checkbox" checked={checked} onChange={this.handleFinish} />
           <label>
             <span className="description">{title}</span>
-            <span className="created">created 5 minutes ago</span>
+            <span className="created">{`created ${formatDistanceToNow(date, {
+              includeSeconds: true,
+              locale: KG,
+              addSuffix: true,
+            })}`}</span>
           </label>
           <button
             type="button"
