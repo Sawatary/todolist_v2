@@ -1,5 +1,5 @@
 import React from 'react';
-
+import PropTypes from 'prop-types';
 export default class NewTaskForm extends React.Component {
   constructor() {
     super();
@@ -11,7 +11,7 @@ export default class NewTaskForm extends React.Component {
     this.setState({ value: event.target.value });
   };
   render() {
-    const { onTaskAdd } = this.props;
+    const { placeholder, title, onTaskAdd } = this.props;
     const handleSubmit = (event) => {
       event.preventDefault();
       if (this.state.value.trim()) {
@@ -21,11 +21,11 @@ export default class NewTaskForm extends React.Component {
     };
     return (
       <form onSubmit={handleSubmit} className="header">
-        <h1>Todos</h1>
+        <h1>{title}</h1>
         <label>
           <input
             className="new-todo"
-            placeholder="What needs to be done?"
+            placeholder={placeholder}
             onChange={this.handleInputChange}
             value={this.state.value}
           />
@@ -34,3 +34,14 @@ export default class NewTaskForm extends React.Component {
     );
   }
 }
+
+NewTaskForm.propTypes = {
+  placeholder: PropTypes.string,
+  title: PropTypes.string,
+  onTaskAdd: PropTypes.func.isRequired,
+};
+
+NewTaskForm.defaultProps = {
+  placeholder: 'What needs to be done?',
+  title: 'Todos',
+};

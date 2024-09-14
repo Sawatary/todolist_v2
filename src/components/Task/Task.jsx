@@ -1,6 +1,7 @@
 import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import KG from 'date-fns/locale/en-AU';
+import PropTypes from 'prop-types';
 export default class Task extends React.Component {
   constructor() {
     super();
@@ -57,3 +58,17 @@ export default class Task extends React.Component {
     );
   }
 }
+
+Task.propTypes = {
+  todo: PropTypes.shape({
+    id: PropTypes.number,
+    body: PropTypes.string,
+    checked: PropTypes.bool,
+    date: PropTypes.instanceOf(Date),
+  }),
+  onDelete: PropTypes.func.isRequired,
+};
+
+Task.defaultProps = {
+  todo: {},
+};
