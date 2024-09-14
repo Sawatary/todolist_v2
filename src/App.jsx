@@ -9,7 +9,7 @@ export default class App extends Component {
   constructor() {
     super();
     this.state = {
-      items: [{ id: 1, body: 'Task test', checked: false }],
+      items: [],
     };
   }
 
