@@ -4,27 +4,26 @@ export default class Task extends React.Component {
   constructor() {
     super();
     this.state = {
-      done: false,
+      editing: false,
+      editText: '',
     };
   }
-  handleFinish = () => this.setState(({ done }) => ({ done: !done }));
+  handleFinish = () => this.props.onToggle();
+
   render() {
-    const { title, onDelete } = this.props;
-    const { done } = this.state;
+    const { title, onDelete, checked } = this.props;
     return (
-      <ul>
-        <li className={done ? 'completed' : ''}>
-          <div className="view">
-            <input className="toggle" type="checkbox" onClick={this.handleFinish} />
-            <label>
-              <span className="description">{title}</span>
-              <span className="created">created 5 minutes ago</span>
-            </label>
-            <button className="icon icon-edit"></button>
-            <button className="icon icon-destroy" onClick={onDelete}></button>
-          </div>
-        </li>
-      </ul>
+      <li className={checked ? 'completed' : ''}>
+        <div className="view">
+          <input className="toggle" type="checkbox" checked={checked} onChange={this.handleFinish} />
+          <label>
+            <span className="description">{title}</span>
+            <span className="created">created 5 minutes ago</span>
+          </label>
+          <button type="button" className="icon icon-edit"></button>
+          <button type="button" className="icon icon-destroy" onClick={onDelete}></button>
+        </div>
+      </li>
     );
   }
 }

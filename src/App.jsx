@@ -6,21 +6,17 @@ import Footer from './components/Footer/Footer';
 import './index.css';
 
 export default class App extends Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = {
-      items: [
-        { title: 'Active task', id: 1 },
-        { title: 'Active task', id: 2 },
-        { title: 'Active task', id: 3 },
-      ],
+      items: [{ id: 1, body: 'Task test', checked: false }],
     };
   }
-  deleteItem = (id) => {
+
+  deleteTask = (id) => {
     this.setState(({ items }) => {
       const idx = items.findIndex((el) => el.id === id);
       if (idx === -1) return;
-
       const newArray = [...items.slice(0, idx), ...items.slice(idx + 1)];
       return {
         items: newArray,
@@ -28,11 +24,26 @@ export default class App extends Component {
     });
   };
 
+  addTask(value) {
+    const data = {
+      body: value,
+      id: this.state.items.length + 1,
+      checked: false,
+    };
+    this.setState(({ items }) => ({ items: [...items, data] }));
+  }
+
+  toggleTask = (id) => {
+    this.setState(({ items }) => ({
+      items: items.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item)),
+    }));
+  };
+
   render() {
     return (
       <div className="todo-app">
-        <NewTaskForm />
-        <TaskList todos={this.state.items} onDelete={this.deleteItem} />
+        <NewTaskForm onTaskAdd={this.addTask.bind(this)} />
+        <TaskList todos={this.state.items} onDelete={this.deleteTask} onToggle={this.toggleTask} />
         <Footer />
       </div>
     );
