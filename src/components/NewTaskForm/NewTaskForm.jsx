@@ -22,14 +22,22 @@ export default class NewTaskForm extends React.Component {
     return (
       <form onSubmit={handleSubmit} className="header">
         <h1>{title}</h1>
-        <label>
+        <form className="new-todo-form">
           <input
             className="new-todo"
             placeholder={placeholder}
             onChange={this.handleInputChange}
             value={this.state.value}
           />
-        </label>
+          <input className="new-todo-form__timer" placeholder="Min" type="text" maxLength="2" />
+          <input className="new-todo-form__timer" placeholder="Sec" type="text" maxLength="2" />
+        </form>
+        <input
+          className="new-todo"
+          placeholder={placeholder}
+          onChange={this.handleInputChange}
+          value={this.state.value}
+        />
       </form>
     );
   }
