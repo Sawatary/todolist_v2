@@ -3,11 +3,11 @@ import { formatDistanceToNow } from 'date-fns';
 import KG from 'date-fns/locale/en-AU';
 import PropTypes from 'prop-types';
 
-const Task = ({ todo, title, onDelete, onToggle, editItem }) => {
+const Task = ({ todo, onDelete, onToggle, editItem, onPause }) => {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState('');
 
-  const handleFinish = () => onToggle();
+  const handleFinish = () => onToggle(todo.id);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -16,17 +16,28 @@ const Task = ({ todo, title, onDelete, onToggle, editItem }) => {
     setEditing(false);
   };
 
+  const formatTime = (seconds) => {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  };
+
   return (
     <li className={todo.checked ? 'completed' : editing ? 'editing' : ''}>
       <div className="view">
         <input className="toggle" type="checkbox" checked={todo.checked} onChange={handleFinish} />
         <label>
-          <span className="description">{title}</span>
-          <span className="created">{`created ${formatDistanceToNow(todo.date, {
-            includeSeconds: true,
-            locale: KG,
-            addSuffix: true,
-          })}`}</span>
+          <span className="description">{todo.body}</span>
+          <span className="created">
+            {formatDistanceToNow(todo.date, {
+              locale: KG,
+              addSuffix: true,
+            })}
+          </span>
+          <button type="button" className="pause-button" onClick={onPause}>
+            {todo.paused ? 'Resume' : 'Pause'}
+          </button>
+          <span className="timer">{formatTime(todo.timeLeft)}</span>
         </label>
         <button
           type="button"
@@ -55,10 +66,9 @@ Task.propTypes = {
     body: PropTypes.string,
     checked: PropTypes.bool,
     date: PropTypes.instanceOf(Date),
-  }),
+    paused: PropTypes.bool.isRequired,
+    timeLeft: PropTypes.number.isRequired,
+  }).isRequired,
   onDelete: PropTypes.func.isRequired,
-};
-
-Task.defaultProps = {
-  todo: {},
+  onPause: PropTypes.func.isRequired,
 };
