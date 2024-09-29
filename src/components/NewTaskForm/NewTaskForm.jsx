@@ -21,18 +21,21 @@ const NewTaskForm = ({ placeholder, title, onTaskAdd }) => {
   };
 
   const handleSubmit = (event) => {
+    event.preventDefault(); // предотвратить отправку формы
     const totalSeconds = parseInt(minutes || 0) * 60 + parseInt(seconds || 0);
-    event.preventDefault();
+
     if (value.trim()) {
       onTaskAdd(value, totalSeconds);
       setValue('');
+      setMinutes('');
+      setSeconds('');
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="header new-todo-form">
       <h1>{title}</h1>
-      <button className="button" type="submit" onClick={handleSubmit}>
+      <button className="button" type="submit">
         <FontAwesomeIcon icon={faPlus} className="icon" />
       </button>
       <input className="new-todo" placeholder={placeholder} onChange={handleInputChange} value={value} />

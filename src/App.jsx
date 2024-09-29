@@ -36,7 +36,7 @@ const App = () => {
         if (task.timeLeft > 0) {
           return { ...task, timeLeft: task.timeLeft - 1 };
         } else {
-          return { ...task, checked: true }; // Устанавливаем статус задачи как выполненную
+          return { ...task, checked: false }; // Оставляю задачу как не выполненную мне кажется так более уместно
         }
       })
     );
