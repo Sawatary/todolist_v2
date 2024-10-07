@@ -1,86 +1,98 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import NewTaskForm from './components/NewTaskForm/NewTaskForm';
 import TaskList from './components/TaskList/TaskList';
 import Footer from './components/Footer/Footer';
 import './index.css';
 
-export default class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      items: [],
-      filter: 'All',
-    };
-  }
+const App = () => {
+  const [items, setItems] = useState([]);
+  const [filter, setFilter] = useState('All');
 
-  deleteTask = (id) => {
-    this.setState(({ items }) => {
-      const idx = items.findIndex((el) => el.id === id);
-      if (idx === -1) return;
-      const newArray = [...items.slice(0, idx), ...items.slice(idx + 1)];
-      return {
-        items: newArray,
-      };
-    });
-  };
-
-  addTask = (value) => {
-    const data = {
+  const addTask = (value, timeInSeconds) => {
+    const newTask = {
       body: value,
-      id: this.state.items.length + 1,
+      timeLeft: timeInSeconds,
+      id: Date.now(),
       checked: false,
+      paused: false,
       date: new Date(),
     };
-    this.setState(({ items }) => ({ items: [...items, data] }));
+    setItems((prevItems) => [...prevItems, newTask]);
   };
 
-  toggleTask = (id) => {
-    this.setState(({ items }) => ({
-      items: items.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item)),
-    }));
+  useEffect(() => {
+    const timer = setInterval(() => {
+      tick();
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [items]);
+
+  const tick = () => {
+    setItems((prevTasks) =>
+      prevTasks.map((task) => {
+        if (task.paused) return task; // Не уменьшаем таймер, если задача приостановлена
+        if (task.timeLeft > 0) {
+          return { ...task, timeLeft: task.timeLeft - 1 };
+        } else {
+          return { ...task, checked: false }; // Оставляю задачу как не выполненную мне кажется так более уместно
+        }
+      })
+    );
   };
 
-  editTask = (id, text) => {
-    this.setState(({ items }) => ({
-      items: items.map((item) => (item.id === id ? { ...item, body: text } : item)),
-    }));
+  const deleteTask = (id) => {
+    setItems((items) => items.filter((item) => item.id !== id));
   };
 
-  clearCompleted = () => {
-    this.setState(({ items }) => ({ items: items.filter((element) => !element.checked) }));
+  const toggleTask = (id) => {
+    setItems((items) => items.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item)));
   };
 
-  filteredTask = () => {
-    const { items, filter } = this.state;
-    return items.filter(({ checked }) => {
-      const all = filter === 'All';
-      const completed = filter === 'Completed';
-      return all ? true : completed ? checked === true : checked === false;
+  const editTask = (id, text) => {
+    setItems((items) => items.map((item) => (item.id === id ? { ...item, body: text } : item)));
+  };
+
+  const clearCompleted = () => {
+    setItems((items) => items.filter((item) => !item.checked));
+  };
+
+  const filteredTask = () => {
+    return items.filter((item) => {
+      if (filter === 'All') return true;
+      if (filter === 'Completed') return item.checked;
+      if (filter === 'Active') return !item.checked;
+      return true;
     });
   };
 
-  changeFilter = (data) => {
-    this.setState({ filter: data });
+  const changeFilter = (filter) => {
+    setFilter(filter);
   };
 
-  render() {
-    return (
-      <div className="todo-app">
-        <NewTaskForm onTaskAdd={this.addTask} />
-        <TaskList
-          todos={this.filteredTask()}
-          onDelete={this.deleteTask}
-          onToggle={this.toggleTask}
-          editItem={this.editTask}
-        />
-        <Footer
-          lefts={this.state.items.filter(({ checked }) => !checked).length}
-          filter={this.state.filter}
-          clearCompleted={this.clearCompleted}
-          changeFilter={this.changeFilter}
-        />
-      </div>
-    );
-  }
-}
+  const pauseTask = (id) => {
+    setItems((items) => items.map((item) => (item.id === id ? { ...item, paused: !item.paused } : item)));
+  };
+
+  return (
+    <div className="todo-app">
+      <NewTaskForm onTaskAdd={addTask} />
+      <TaskList
+        todos={filteredTask()}
+        onDelete={deleteTask}
+        onToggle={toggleTask}
+        editItem={editTask}
+        pauseTask={pauseTask}
+      />
+      <Footer
+        lefts={items.filter((item) => !item.checked).length}
+        filter={filter}
+        clearCompleted={clearCompleted}
+        changeFilter={changeFilter}
+      />
+    </div>
+  );
+};
+
+export default App;
