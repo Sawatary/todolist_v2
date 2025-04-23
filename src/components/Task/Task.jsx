@@ -1,63 +1,64 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import KG from 'date-fns/locale/en-AU';
 import PropTypes from 'prop-types';
-export default class Task extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      editing: false,
-      editText: '',
-    };
-  }
 
-  handleFinish = () => this.props.onToggle();
-  handleSubmit = (event) => {
+const Task = ({ todo, onDelete, onToggle, editItem, onPause }) => {
+  const [editing, setEditing] = useState(false);
+  const [editText, setEditText] = useState('');
+
+  const handleFinish = () => onToggle(todo.id);
+
+  const handleSubmit = (event) => {
     event.preventDefault();
-    const {
-      editItem,
-      todo: { id },
-    } = this.props;
-    editItem(id, this.state.editText);
-    this.setState({ editText: '', editing: false });
+    editItem(todo.id, editText);
+    setEditText('');
+    setEditing(false);
   };
 
-  render() {
-    const { title, onDelete, todo } = this.props;
-    const { checked, date } = todo;
-    return (
-      <li className={checked ? 'completed' : this.state.editing ? 'editing' : ''}>
-        <div className="view">
-          <input className="toggle" type="checkbox" checked={checked} onChange={this.handleFinish} />
-          <label>
-            <span className="description">{title}</span>
-            <span className="created">{`created ${formatDistanceToNow(date, {
-              includeSeconds: true,
+  const formatTime = (seconds) => {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <li className={todo.checked ? 'completed' : editing ? 'editing' : ''}>
+      <div className="view">
+        <input className="toggle" type="checkbox" checked={todo.checked} onChange={handleFinish} />
+        <label>
+          <span className="description">{todo.body}</span>
+          <span className="created">
+            {formatDistanceToNow(todo.date, {
               locale: KG,
               addSuffix: true,
-            })}`}</span>
-          </label>
-          <button
-            type="button"
-            className="icon icon-edit"
-            onClick={() => this.setState({ editing: !this.state.editing, editText: this.props.todo.body })}
-          ></button>
-          <button type="button" className="icon icon-destroy" onClick={onDelete}></button>
-        </div>
-        {this.state.editing && (
-          <form onSubmit={this.handleSubmit}>
-            <input
-              onChange={(event) => this.setState({ editText: event.target.value })}
-              type="text"
-              className="edit"
-              value={this.state.editText}
-            />
-          </form>
-        )}
-      </li>
-    );
-  }
-}
+            })}
+          </span>
+          <button type="button" className="pause-button" onClick={onPause}>
+            {todo.paused ? 'Resume' : 'Pause'}
+          </button>
+          <span className="timer">{formatTime(todo.timeLeft)}</span>
+        </label>
+        <button
+          type="button"
+          className="icon icon-edit"
+          onClick={() => {
+            setEditing(!editing);
+            setEditText(todo.body);
+          }}
+        ></button>
+        <button type="button" className="icon icon-destroy" onClick={onDelete}></button>
+      </div>
+      {editing && (
+        <form onSubmit={handleSubmit}>
+          <input onChange={(event) => setEditText(event.target.value)} type="text" className="edit" value={editText} />
+        </form>
+      )}
+    </li>
+  );
+};
+
+export default Task;
 
 Task.propTypes = {
   todo: PropTypes.shape({
@@ -65,10 +66,9 @@ Task.propTypes = {
     body: PropTypes.string,
     checked: PropTypes.bool,
     date: PropTypes.instanceOf(Date),
-  }),
+    paused: PropTypes.bool.isRequired,
+    timeLeft: PropTypes.number.isRequired,
+  }).isRequired,
   onDelete: PropTypes.func.isRequired,
-};
-
-Task.defaultProps = {
-  todo: {},
+  onPause: PropTypes.func.isRequired,
 };
